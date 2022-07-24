@@ -217,30 +217,6 @@ resource "aws_key_pair" "keypair" {
 }
 
 #####
-# AMI image
-#####
-
-data "aws_ami" "centos7" {
-  most_recent = true
-  owners      = ["aws-marketplace"]
-
-  filter {
-    name   = "product-code"
-    values = ["aw0evgkw8e5c1q413zgy5pjce", "cvugziknvmxgqna9noibqnnsy"]
-  }
-
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-}
-
-#####
 # Master - EC2 instance
 #####
 
@@ -251,7 +227,7 @@ resource "aws_eip" "master" {
 resource "aws_instance" "master" {
   instance_type = var.master_instance_type
 
-  ami = data.aws_ami.centos7.id
+  ami = var.ami_id
 
   key_name = aws_key_pair.keypair.key_name
 
@@ -301,7 +277,7 @@ resource "aws_eip_association" "master_assoc" {
 
 resource "aws_launch_configuration" "nodes" {
   name_prefix          = "${var.cluster_name}-nodes-"
-  image_id             = data.aws_ami.centos7.id
+  image_id             = var.ami_id
   instance_type        = var.worker_instance_type
   key_name             = aws_key_pair.keypair.key_name
   iam_instance_profile = aws_iam_instance_profile.node_profile.name
@@ -370,4 +346,3 @@ resource "aws_route53_record" "master" {
   records = [aws_eip.master.public_ip]
   ttl     = 300
 }
-

@@ -1,3 +1,7 @@
+variable "ami_id" {
+  description = "Base AMI"
+}
+
 variable "aws_region" {
   description = "Region where Cloud Formation is created"
   default     = "eu-central-1"
@@ -50,7 +54,7 @@ variable "max_worker_count" {
 }
 
 variable "public_worker" {
-  description = "Weither or not the workers should have a public IP"
+  description = "Whether or not the workers should have a public IP"
   default     = true
 }
 
@@ -83,4 +87,3 @@ variable "api_access_cidr" {
     "0.0.0.0/0",
   ]
 }
-

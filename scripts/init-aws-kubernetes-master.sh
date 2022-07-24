@@ -29,9 +29,10 @@ FULL_HOSTNAME="$(curl -s http://169.254.169.254/latest/meta-data/hostname)"
 DNS_NAME=$(echo "$DNS_NAME" | tr 'A-Z' 'a-z')
 
 # Install AWS CLI client
-yum install -y epel-release
-yum install -y python3-pip
-pip3 install --upgrade awscli
+apt-get -y update
+apt-get -y install python3 python3-pip
+pip3 install awscli --upgrade
+apt-get install -y apt-transport-https curl
 
 ########################################
 ########################################
@@ -42,19 +43,6 @@ for SUBNET in $AWS_SUBNETS
 do
   aws ec2 create-tags --resources $SUBNET --tags Key=kubernetes.io/cluster/$CLUSTER_NAME,Value=shared --region $AWS_REGION
 done
-
-########################################
-########################################
-# Disable SELinux
-########################################
-########################################
-
-# setenforce returns non zero if already SE Linux is already disabled
-is_enforced=$(getenforce)
-if [[ $is_enforced != "Disabled" ]]; then
-  setenforce 0
-  sed -i 's/SELINUX=enforcing/SELINUX=permissive/g' /etc/selinux/config
-fi
 
 ########################################
 ########################################
@@ -79,42 +67,50 @@ EOF
 # Apply sysctl params without reboot
 sysctl --system
 
-yum install -y yum-utils curl gettext device-mapper-persistent-data lvm2
-yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-sudo yum install -y containerd.io
-mkdir -p /etc/containerd
-containerd config default > /etc/containerd/config.toml
-sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
+# download the latest version of containerd from GitHub and extract the files
+wget https://github.com/containerd/containerd/releases/download/v1.6.6/containerd-1.6.6-linux-amd64.tar.gz
+tar Czxvf /usr/local containerd-1.6.6-linux-amd64.tar.gz
+
+# download the systemd service file and set it up so that you can manage the service via systemd
+wget https://raw.githubusercontent.com/containerd/containerd/main/containerd.service
+mv containerd.service /usr/lib/systemd/system/
+
+# start the containerd service
+systemctl daemon-reload
+systemctl enable --now containerd
+
+# download the latest version of runC from GitHub and install it
+wget https://github.com/opencontainers/runc/releases/download/v1.1.3/runc.amd64
+install -m 755 runc.amd64 /usr/local/sbin/runc
+
+# containerd uses a configuration file config.toml for handling its demons. When installing containerd using
+# official binaries, you will not get the configuration file. So, generate the default configuration file
+mkdir -p /etc/containerd/
+containerd config default | sudo tee /etc/containerd/config.toml
+
+# if you plan to use containerd as the runtime for Kubernetes, configure the systemd cgroup driver for runC
+sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
+
+# restart the containerd service
 systemctl restart containerd
-systemctl enable containerd
 
 ########################################
 ########################################
 # Install Kubernetes components
 ########################################
 ########################################
-sudo cat <<EOF > /etc/yum.repos.d/kubernetes.repo
-[kubernetes]
-name=Kubernetes
-baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
-enabled=1
-gpgcheck=0
-repo_gpgcheck=0
-gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-exclude=kubelet kubeadm kubectl
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+cat <<EOF | tee /etc/apt/sources.list.d/kubernetes.list
+deb https://apt.kubernetes.io/ kubernetes-xenial main
 EOF
-
-yum install -y kubelet-$KUBERNETES_VERSION kubeadm-$KUBERNETES_VERSION kubernetes-cni --disableexcludes=kubernetes
+apt-get update -y
+apt-get install -y kubelet kubeadm kubectl
+apt-mark hold kubelet kubeadm kubectl
+swapoff -a
 
 # Start services
 systemctl enable kubelet
 systemctl start kubelet
-
-# Fix certificates file on CentOS
-if cat /etc/*release | grep ^NAME= | grep CentOS ; then
-    rm -rf /etc/ssl/certs/ca-certificates.crt/
-    cp /etc/ssl/certs/ca-bundle.crt /etc/ssl/certs/ca-certificates.crt
-fi
 
 ########################################
 ########################################
@@ -195,16 +191,16 @@ kubectl apply -f https://raw.githubusercontent.com/scholzj/terraform-aws-kuberne
 kubectl create clusterrolebinding admin-cluster-binding --clusterrole=cluster-admin --user=admin
 
 # Prepare the kubectl config file for download to client (IP address)
-export KUBECONFIG_OUTPUT=/home/centos/kubeconfig_ip
+export KUBECONFIG_OUTPUT=/home/ubuntu/kubeconfig_ip
 kubeadm kubeconfig user --client-name admin --config /tmp/kubeadm.yaml > $KUBECONFIG_OUTPUT
-chown centos:centos $KUBECONFIG_OUTPUT
+chown ubuntu:ubuntu $KUBECONFIG_OUTPUT
 chmod 0600 $KUBECONFIG_OUTPUT
 
-cp /home/centos/kubeconfig_ip /home/centos/kubeconfig
-sed -i "s/server: https:\/\/.*:6443/server: https:\/\/$IP_ADDRESS:6443/g" /home/centos/kubeconfig_ip
-sed -i "s/server: https:\/\/.*:6443/server: https:\/\/$DNS_NAME:6443/g" /home/centos/kubeconfig
-chown centos:centos /home/centos/kubeconfig
-chmod 0600 /home/centos/kubeconfig
+cp /etc/kubernetes/admin.conf /home/ubuntu/kubeconfig
+sed -i "s/server: https:\/\/.*:6443/server: https:\/\/$IP_ADDRESS:6443/g" /home/ubuntu/kubeconfig_ip
+sed -i "s/server: https:\/\/.*:6443/server: https:\/\/$DNS_NAME:6443/g" /home/ubuntu/kubeconfig
+chown ubuntu:ubuntu /home/ubuntu/kubeconfig
+chmod 0600 /home/ubuntu/kubeconfig
 
 ########################################
 ########################################
