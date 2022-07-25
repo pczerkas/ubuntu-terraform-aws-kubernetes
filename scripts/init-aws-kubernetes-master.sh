@@ -179,7 +179,7 @@ kubeadm init --config /tmp/kubeadm.yaml
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
 # Install calico
-kubectl apply -f https://raw.githubusercontent.com/scholzj/terraform-aws-kubernetes/master/calico/calico.yaml
+kubectl apply -f https://raw.githubusercontent.com/pczerkas/ubuntu-terraform-aws-kubernetes/master/calico/calico.yaml
 
 ########################################
 ########################################

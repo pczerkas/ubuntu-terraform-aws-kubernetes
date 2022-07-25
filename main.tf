@@ -293,6 +293,7 @@ resource "aws_launch_configuration" "nodes" {
   root_block_device {
     volume_type           = "gp2"
     volume_size           = "50"
+    encrypted             = true
     delete_on_termination = true
   }
 
