@@ -1,4 +1,4 @@
-# AWS Kubernetes
+# AWS Kubernetes (Ubuntu)
 
 AWS Kubernetes is a Kubernetes cluster deployed using [Kubeadm](https://kubernetes.io/docs/admin/kubeadm/) tool. It provides full integration with AWS. It is able to handle ELB load balancers, EBS disks, Route53 domains etc.
 
