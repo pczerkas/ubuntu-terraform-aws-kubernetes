@@ -16,6 +16,7 @@ AWS Kubernetes is a Kubernetes cluster deployed using [Kubeadm](https://kubernet
 
 ## Updates
 
+* *01.8.2022* Update Caliaco, split manifests to bgp/vxlan
 * *16.7.2022* Update to Kubernetes 1.24.3
 * *27.6.2022* Update to Kubernetes 1.24.2
 * *11.6.2022* Update to Kubernetes 1.24.1 + update addons + remove dependency on the template provider
@@ -75,11 +76,11 @@ module "kubernetes" {
   ]
   
   addons = [
-    "https://raw.githubusercontent.com/scholzj/terraform-aws-kubernetes/master/addons/storage-class.yaml",
-    "https://raw.githubusercontent.com/scholzj/terraform-aws-kubernetes/master/addons/heapster.yaml",
-    "https://raw.githubusercontent.com/scholzj/terraform-aws-kubernetes/master/addons/dashboard.yaml",
-    "https://raw.githubusercontent.com/scholzj/terraform-aws-kubernetes/master/addons/external-dns.yaml",
-    "https://raw.githubusercontent.com/scholzj/terraform-aws-kubernetes/master/addons/autoscaler.yaml"
+    "https://raw.githubusercontent.com/pczerkas/ubuntu-terraform-aws-kubernetes/master/addons/storage-class.yaml",
+    "https://raw.githubusercontent.com/pczerkas/ubuntu-terraform-aws-kubernetes/master/addons/heapster.yaml",
+    "https://raw.githubusercontent.com/pczerkas/ubuntu-terraform-aws-kubernetes/master/addons/dashboard.yaml",
+    "https://raw.githubusercontent.com/pczerkas/ubuntu-terraform-aws-kubernetes/master/addons/external-dns.yaml",
+    "https://raw.githubusercontent.com/pczerkas/ubuntu-terraform-aws-kubernetes/master/addons/autoscaler.yaml"
   ]
 }
 ```
