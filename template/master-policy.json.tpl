@@ -24,7 +24,8 @@
                 "autoscaling:DescribeTags",
                 "autoscaling:SetDesiredCapacity",
                 "autoscaling:TerminateInstanceInAutoScalingGroup",
-                "autoscaling:DescribeLaunchConfigurations"
+                "autoscaling:DescribeLaunchConfigurations",
+                "iam:CreateServiceLinkedRole"
                 ],
             "Resource": "*"
         }
