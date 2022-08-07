@@ -36,7 +36,7 @@ spec:
             - --skip-nodes-with-local-storage=false
             - --nodes=${ASG_MIN_NODES}:${ASG_MAX_NODES}:${ASG_NAME}
             - --alsologtostderr
-            - --max-total-unready-percentage="100"
+            - --max-total-unready-percentage=100
           env:
             - name: AWS_REGION
               value: ${AWS_REGION}
