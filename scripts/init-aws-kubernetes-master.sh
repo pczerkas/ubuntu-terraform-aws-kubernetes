@@ -121,7 +121,7 @@ systemctl start kubelet
 # Initialize the master
 cat >/tmp/kubeadm.yaml <<EOF
 ---
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 kind: InitConfiguration
 bootstrapTokens:
 - groups:
@@ -132,6 +132,8 @@ bootstrapTokens:
   - signing
   - authentication
 nodeRegistration:
+  criSocket: unix:///var/run/containerd/containerd.sock
+  imagePullPolicy: IfNotPresent
   kubeletExtraArgs:
     cloud-provider: aws
     read-only-port: "10255"
@@ -141,7 +143,7 @@ nodeRegistration:
   - effect: NoSchedule
     key: node-role.kubernetes.io/master
 ---
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 apiServer:
   certSANs:
@@ -157,8 +159,7 @@ clusterName: kubernetes
 controllerManager:
   extraArgs:
     cloud-provider: aws
-dns:
-  type: CoreDNS
+dns: {}
 etcd:
   local:
     dataDir: /var/lib/etcd
@@ -179,9 +180,7 @@ kubeadm init --config /tmp/kubeadm.yaml
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
 # Install calico
-kubectl apply -f https://raw.githubusercontent.com/pczerkas/ubuntu-terraform-aws-kubernetes/master/cni/calico_3.20.0.yaml
-# kubectl apply -f https://docs.projectcalico.org/archive/v3.21/manifests/calico.yaml
-# kubectl apply -f https://docs.projectcalico.org/archive/v3.20/manifests/calico.yaml
+kubectl apply -f https://docs.projectcalico.org/archive/v3.23/manifests/calico.yaml
 
 ########################################
 ########################################
