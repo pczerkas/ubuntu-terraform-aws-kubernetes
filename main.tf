@@ -328,8 +328,8 @@ resource "aws_autoscaling_group" "nodes" {
 
   warm_pool {
     pool_state                  = "Hibernated"
-    min_size                    = 1
-    max_group_prepared_capacity = 1
+    min_size                    = 4
+    max_group_prepared_capacity = 4
   }
 
   lifecycle {
