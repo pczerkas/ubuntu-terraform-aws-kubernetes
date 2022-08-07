@@ -97,7 +97,7 @@ systemctl start kubelet
 ########################################
 cat >/tmp/kubeadm.yaml <<EOF
 ---
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 kind: JoinConfiguration
 discovery:
   bootstrapToken:
@@ -107,11 +107,15 @@ discovery:
   timeout: 5m0s
   tlsBootstrapToken: $KUBEADM_TOKEN
 nodeRegistration:
+  criSocket: unix:///var/run/containerd/containerd.sock
+  imagePullPolicy: IfNotPresent
   kubeletExtraArgs:
     cloud-provider: aws
     read-only-port: "10255"
     cgroup-driver: systemd
   name: $FULL_HOSTNAME
+  taints: null
+caCertPath: /etc/kubernetes/pki/ca.crt
 ---
 EOF
 
