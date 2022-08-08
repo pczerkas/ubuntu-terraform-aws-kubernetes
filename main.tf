@@ -330,6 +330,10 @@ resource "aws_autoscaling_group" "nodes" {
     pool_state                  = "Hibernated"
     min_size                    = 4
     max_group_prepared_capacity = 4
+
+    instance_reuse_policy {
+      reuse_on_scale_in = true
+    }
   }
 
   lifecycle {
