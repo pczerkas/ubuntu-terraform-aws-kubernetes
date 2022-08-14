@@ -252,7 +252,7 @@ resource "aws_instance" "master" {
   )
 
   root_block_device {
-    volume_type           = "gp2"
+    volume_type           = "gp3"
     volume_size           = "30"
     delete_on_termination = true
   }
@@ -291,7 +291,7 @@ resource "aws_launch_configuration" "nodes" {
   user_data = data.cloudinit_config.node_cloud_init.rendered
 
   root_block_device {
-    volume_type           = "gp2"
+    volume_type           = "gp3"
     volume_size           = "30"
     encrypted             = true
     delete_on_termination = true
