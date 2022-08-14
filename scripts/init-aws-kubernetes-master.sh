@@ -80,7 +80,7 @@ systemctl daemon-reload
 systemctl enable --now containerd
 
 # download the latest version of runC from GitHub and install it
-wget https://github.com/opencontainers/runc/releases/download/v1.1.3/runc.amd64
+wget https://github.com/opencontainers/runc/releases/download/v1.1.2/runc.amd64
 install -m 755 runc.amd64 /usr/local/sbin/runc
 
 # containerd uses a configuration file config.toml for handling its demons. When installing containerd using
