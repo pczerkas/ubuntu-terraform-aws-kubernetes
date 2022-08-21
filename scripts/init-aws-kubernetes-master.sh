@@ -180,7 +180,7 @@ kubeadm init --config /tmp/kubeadm.yaml
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
 # Install calico
-kubectl apply -f https://docs.projectcalico.org/archive/v3.23/manifests/calico.yaml
+kubectl apply -f https://docs.projectcalico.org/archive/v3.24/manifests/calico.yaml
 
 ########################################
 ########################################
