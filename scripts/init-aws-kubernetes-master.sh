@@ -163,7 +163,7 @@ dns: {}
 etcd:
   local:
     dataDir: /var/lib/etcd
-imageRepository: k8s.gcr.io
+#imageRepository: k8s.gcr.io
 kubernetesVersion: v$KUBERNETES_VERSION
 networking:
   dnsDomain: cluster.local
